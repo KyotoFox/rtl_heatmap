@@ -155,14 +155,15 @@ def plot_heatmap(f_name, args):
         for line in f:
             fields = [g.strip() for g in line.split(',')]
             try:
-                ts = '%sT%s' % (fields[0], fields[1])
+                #ts = '%sT%s' % (fields[0], fields[1])
+                ts = fields[0]
             except IndexError as i:
                 continue
-            freqs = numpy.array(frange(int(fields[2]), int(fields[3]), float(fields[4])))
+            freqs = numpy.array(frange(int(fields[1]), int(fields[2]), float(fields[3])))
             values = numpy.array(floatify(fields[6:6+len(freqs)]))
             if ts not in od:
                 od[ts] = []
-            od[ts].append(((int(fields[2]), int(fields[3]), float(fields[4])), values))
+            od[ts].append(((int(fields[1]), int(fields[2]), float(fields[3])), values))
 
     print_quiet(':: processing data', args.quiet)
     # truncate data outside of time window if needed
@@ -191,6 +192,7 @@ def plot_heatmap(f_name, args):
         freqs.extend(frange(x[0], x[1], x[2]))
 
     for ts, v in od.items():
+        #print(v)
         v.sort(key=lambda x:x[0][0])
         z = numpy.concatenate([z for _,z in v])
         xmin = min(xmin, v[0][0][0])
@@ -226,8 +228,8 @@ def plot_heatmap(f_name, args):
     print_quiet(':: rendering', args.quiet)
     fig, ax = plt.subplots(constrained_layout=0)
 
-    start = time.mktime(time.strptime(datetimes[0], '%Y-%m-%dT%H:%M:%S'))
-    end = time.mktime(time.strptime(datetimes[-1], '%Y-%m-%dT%H:%M:%S'))
+    start = time.mktime(time.strptime(datetimes[0], '%Y-%m-%dT%H:%M:%S.%fZ'))
+    end = time.mktime(time.strptime(datetimes[-1], '%Y-%m-%dT%H:%M:%S.%fZ'))
     si = 11 # starting index of timestamp
     if end-start > 24*60*60:
         si = 0
